@@ -1,15 +1,17 @@
 /**
- * 
+ *
  */
 package ubu.gii.dass.test.c01;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+
+import java.util.Vector;
 
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-
-import java.util.Vector;
 
 import ubu.gii.dass.c01.DuplicatedInstanceException;
 import ubu.gii.dass.c01.NotFreeInstanceException;
@@ -28,7 +30,7 @@ public class ReusablePoolTest {
 
 	/**
 	 * Se crea una nueva intancia de ReusableTest antes de cada test
-	 * 
+	 *
 	 * @throws java.lang.Exception
 	 */
 	@Before
@@ -55,6 +57,56 @@ public class ReusablePoolTest {
 		assertNotNull(poolTests2);
 		assertTrue(poolTests1 instanceof ReusablePool);
 		assertTrue(poolTests2 instanceof ReusablePool);
+	}
+
+	/**
+	 * Test method for {@link ubu.gii.dass.c01.ReusablePool#acquireReusable()}.
+	 * @throws NotFreeInstanceException
+	 *
+	 */
+	@Test (expected = NotFreeInstanceException.class)
+	public void testAcquireReusable() throws NotFreeInstanceException {
+
+			int sizeReusable = 0;
+			for (int i = 0; i < 3; i++) { // rebasamos el limite por defecto de 2
+				assertNotNull(poolTests1.acquireReusable());
+				assertNotNull(poolTests2.acquireReusable());
+				sizeReusable++;
+			}
+			assertEquals(sizeReusable, 2);
+
+
+	}
+
+	/**
+	 * Test method for
+	 * {@link ubu.gii.dass.c01.ReusablePool#releaseReusable(ubu.gii.dass.c01.Reusable)}.
+	 * @throws DuplicatedInstanceException
+	 * @throws NotFreeInstanceException
+	 */
+	@Test(expected = DuplicatedInstanceException.class)
+	public void testReleaseReusable() throws DuplicatedInstanceException, NotFreeInstanceException {
+
+			Reusable reusable = poolTests1.acquireReusable();
+			poolTests1.releaseReusable(reusable);
+			poolTests1.releaseReusable(reusable); // exception: reusable already in reusables
+
+
+
+		Reusable reusableNoExistente = new Reusable(); // reusable not in reusables
+		Reusable reusableNoExistente2 = new Reusable();// reusable not in reusables
+		Vector<Reusable> reusables = new Vector<>();
+		try {
+			poolTests2.releaseReusable(reusableNoExistente);
+			poolTests2.releaseReusable(reusableNoExistente2);
+			while (true) {
+				reusables.add(poolTests2.acquireReusable());
+			}
+
+		} catch (DuplicatedInstanceException | NotFreeInstanceException ex) {
+			assertEquals(reusables.size(), 4);
+		}
+
 	}
 
 }
