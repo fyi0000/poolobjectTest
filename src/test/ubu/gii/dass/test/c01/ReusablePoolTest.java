@@ -62,6 +62,7 @@ public class ReusablePoolTest {
 	 * Test method for {@link ubu.gii.dass.c01.ReusablePool#acquireReusable()}.
 	 * 
 	 */
+	/**
 	@Test
 	public void testAcquireReusable() {
 
@@ -105,5 +106,6 @@ public class ReusablePoolTest {
 		}
 
 	}
+	**/
 
 }
